@@ -1,4 +1,6 @@
-import { Game } from './game.js';
+import { Game } from './scenes/game.js';
+import { Congratulations } from './scenes/congratulations.js';
+import { Gameover } from './scenes/gameover.js';
 
 const config = {
   // Esto indica que Phaser podrá usar tanto canvas como WebGL, según el navegador sea o no compatible con uno u otro.
@@ -6,7 +8,7 @@ const config = {
   width: 800,
   height: 500,
   // las escenas se entregan en un array.
-  scene: [Game],
+  scene: [Game, Gameover, Congratulations],
   // estamos indicando que la física será por defecto "arcade"
   // Arcade incluye movimiento, colisiones, gravedad y en general todo lo que necesitarías para un juego de plataformas.
   // Phaser admite hasta 4 tipos distintos de física.

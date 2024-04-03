@@ -14,8 +14,6 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
   // este metod sirve para ir "alistando" los recursos que tendra nuestro juego, asi mismo podemos asignar nombres a nuestros recursos esto con el fin de que a lo largo del juego podamos identificarlos
     preload() {
       this.load.image('background', 'images/background.png');
-      this.load.image('gameover', 'images/gameover.png');
-      this.load.image('congratulations', 'images/congratulations.png');
       this.load.image('platform', 'images/platform.png');
       this.load.image('ball', 'images/ball.png');
       this.load.image('bluebrick', 'images/brickBlue.png');
@@ -68,17 +66,6 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
         }
       });
      
-
-      // añadiendo el panel de fin del juego
-      this.gameoverImage = this.add.image(400, 90, 'gameover');
-      this.gameoverImage.visible = false;
-
-
-      // añadiendo imagen cuando se rompan todos los bloques
-      this.congratsImage = this.add.image(400, 90, 'congratulations');
-      this.congratsImage.visible = false;
-
-
       // añadiendo la plataforma y estableciendo la fisica, adicionalmente indicamos que este item sea inamovinle con otro objeto si a futuro hay una colision 
       this.platform = this.physics.add.image(400, 460, 'platform').setImmovable();
 
@@ -92,19 +79,19 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
       this.cursors = this.input.keyboard.createCursorKeys();
 
 
-
       // creando la bola y ajustando sus movimientos
       this.ball = this.physics.add.image(385, 430, 'ball');
 
       // con esto la bola rebotara cada que choque en la parte inferior del juego, un valor igual a 1 indica que esta rebotara con la misma fuerza que con la que cayo
       this.ball.setBounce(1);
-
-
+   
+   
       // con esto hacemos que la bola se afecte por los bordes del juego, por lo que no se podrá salir del área del juego.
       this.ball.setCollideWorldBounds(true);
-
+   
       // con esto indicamos que la bola estar pegada a la plataforma
       this.ball.setData('glue', true);
+
 
       
       // Colisiones que ejecutan métodos
@@ -141,6 +128,17 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
         velocity = 0 - velocity;
       }
       this.ball.setVelocity(velocity, 10); */
+
+      
+
+ /*      // añadiendo el panel de fin del juego
+      this.gameoverImage = this.add.image(400, 90, 'gameover');
+      this.gameoverImage.visible = false;
+
+
+      // añadiendo imagen cuando se rompan todos los bloques
+      this.congratsImage = this.add.image(400, 90, 'congratulations');
+      this.congratsImage.visible = false; */
 
 
     }
@@ -181,12 +179,13 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
       }
 
       // aqui buscaremos el instante en el que la bola ha llegado a los límites inferiores, recordemos que la escena tien un alto de 500 si y  es mayor a 500 = 501, 502 etc quiere decir que ya bajamos demasiado recordemos tambien que Y en positivo hace referencia a abajo, mientras que Y en negativo hace referencia a arriba
-      if (this.ball.y > 500) {
-        console.log('fin');
-        this.gameoverImage.visible = true;
+      if (this.ball.y > 500 && this.ball.active) {
+        console.log('fin', this.ball.y, this.ball, '--');
+        this.endGame();
+       /*  this.gameoverImage.visible = true;
         this.scene.pause();
         // cuando perdamos tambien haremos desaparecer los bloques
-        this.bricks.setVisible(false);
+        this.bricks.setVisible(false); */
       }
 
       // aqui corroboramos si el usuario ha pulsado la flecha de arriba
@@ -237,9 +236,10 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
       this.increasePoints(10);
       // cuando ya no hallan mas bloques por romper
       if (this.bricks.countActive() === 0) {
+        this.endGame(true);
         // mostraremos una imagen de felicitaciones
-        this.congratsImage.visible = true;
-        this.scene.pause();
+        /* this.congratsImage.visible = true;
+        this.scene.pause(); */
       }
     }
 
@@ -248,6 +248,17 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
     increasePoints(points) {
       this.score += points;
       this.scoreText.setText('PUNTOS: ' + this.score);
+    }
+
+
+    endGame(completed = false) {
+      this.scene.pause();
+      if(! completed) {
+        // la escena se inicia con el método start() indicando el indentificador de la escena que quieres iniciar.
+        this.scene.start('gameover');
+      } else {
+        this.scene.start('congratulations');
+      }
     }
    
 

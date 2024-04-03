@@ -31,3 +31,17 @@ segun las acciones del usuario es que se ejecutara cualquier logica que creamos 
 ## Grupos de elementos en Phaser ## 
 Esta parte nos ayudará a entender una de las posibilidades más útiles de Phaser, que es la creación de grupos de elementos. Estos grupos son tan interesantes porque permiten definir de una única vez acciones y comportamientos que compartirán todos los elementos del grupo
 lo bueno de los grupos es que permiten configuraciones comunes para todos los elementos.
+
+
+
+## Gestión de escenas en Juegos ##
+Una escena es como una pantalla o una fase del juego independiente, que mantiene su propio flujo de ejecución también de manera independiente de otras escenas del juego.
+colocando nuevas escenas : en el objeto config su propiedad scene: [Game, Gameover, Congratulations],
+cada escena sera una clase distinta
+
+
+
+
+
+## sprites ##
+los sprites son distintos fotogramas de una imagen, que si los pasamos en secuencia producen animaciones, como el movimiento de un personaje.
