@@ -1,5 +1,7 @@
 // la clase Gema e extiedne o hereda los ,etodos y/o propiedades de la clase padre Phaser.Scene
 
+import { LiveCounter } from "../components/live-counter.js";
+
 export class Game extends Phaser.Scene {
 /* Phaser.Scene contiene una escena básica y nosotros la extendemos para darle la funcionalidad que requiere nuestro juego. 
 El constructor hace una llamada al constructor de la clase padre, pasando el nombre de la escena. Este nombre nos servirá para referirnos a la escena siempre que sea necesario, por ejemplo para escuchar mensajes, para cambiar la escena activa, etc.*/
@@ -9,6 +11,9 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
     // metodo que ejecutara una logica inicial cada que se inicia el juego
     init() {
       this.score = 0;
+      // instanciando la clase LiveCounter y pasandole como parametro el this (objeto Game) y la cantidad de vidas que tendra el usuario 
+      // cada que se resetea el juego se crea un nuevo contador de vidas
+      this.liveCounter = new LiveCounter(this, 3);
     }
 
   // este metod sirve para ir "alistando" los recursos que tendra nuestro juego, asi mismo podemos asignar nombres a nuestros recursos esto con el fin de que a lo largo del juego podamos identificarlos
@@ -20,10 +25,19 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
       this.load.image('blackbrick', 'images/brickBlack.png');
       this.load.image('greenbrick', 'images/brickGreen.png');
       this.load.image('orangebrick', 'images/brickOrange.png');
+      // audio
+      this.load.audio('platformimpactsample', 'sounds/platform-impact.ogg');
+      this.load.audio('brickimpactsample', 'sounds/brick-impact.ogg');
+      this.load.audio('gameoversample', 'sounds/gameover.ogg');
+      this.load.audio('winsample', 'sounds/you_win.ogg');
+      this.load.audio('startgamesample', 'sounds/start-game.ogg');
+      // sonido cuando el usuario pierde la vida
+      this.load.audio('livelostsample', 'sounds/live-lost.ogg');
     }
 
  // este metodo se ejecuta cuando todos los recursos ya se han cargado , este metodo colocara todo lo necesario para el juego 
     create() {
+   
 
       // estableciendo los limites con los cuales la bola rebotara
       this.physics.world.setBoundsCollision(true, true, true, false);
@@ -32,13 +46,10 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
       this.add.image(410, 250, 'background');
 
 
-    /*  creando un grupo
-      this.miGrupo = this.physics.add.staticGroup();
+      // En el método create() ahora tenemos que invocar el método create() del contador de vidas. Para mostrar el display de las vidas.
+      this.liveCounter.create();
 
-      insertando elementos al grupo, pero asociado al grupo que se acaba de generar
-      this.miGrupo.create(54, 44, 'elementocargado');
-      this.miGrupo.create(75, 32, 'elementocargado'); 
-    */
+
 
       // Crear grupos y sus elementos mediante un mismo método
 
@@ -103,7 +114,7 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
          4-Callback para decidir si hay colisión: esta sería una función que permite decidir si se debe ejecutar el comportamiento de colisión o no.  Es una función que siempre debe devolver un boleano. Si le entregamos null, entonces cada que se toquen los elementos se producirá el comportamiento de colisión.
          -El contexto Este contexto será habitualmente "this", para que dentro del código de la función, la variable this siga siendo igual a la escena sobre la que estamos trabajando.
       */
-         // estableciendo colisones para la bola y la plataforma
+        // estableciendo colisones para la bola y la plataforma
          this.physics.add.collider(this.ball, this.platform, this.platformImpact, null, this);
 
      
@@ -118,6 +129,17 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
           fill: '#fff', 
           fontFamily: 'verdana, arial, sans-serif' 
         });
+
+
+        // Añadir el audio a una escena
+        this.platformImpactSample = this.sound.add('platformimpactsample');
+        this.brickImpactSample = this.sound.add('brickimpactsample');
+        this.gameOverSample = this.sound.add('gameoversample');
+        this.winSample = this.sound.add('winsample');
+        this.startGameSample = this.sound.add('startgamesample');
+
+        // añadimos el sonido de perder una vida a la escena.
+        this.liveLostSample = this.sound.add('livelostsample');
 
 /*       // calculando la velocidad horizontal de manera aleatoria
       // obtendra numeros de minimo 130 y maximo 200
@@ -180,18 +202,23 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
 
       // aqui buscaremos el instante en el que la bola ha llegado a los límites inferiores, recordemos que la escena tien un alto de 500 si y  es mayor a 500 = 501, 502 etc quiere decir que ya bajamos demasiado recordemos tambien que Y en positivo hace referencia a abajo, mientras que Y en negativo hace referencia a arriba
       if (this.ball.y > 500 && this.ball.active) {
-        console.log('fin', this.ball.y, this.ball, '--');
-        this.endGame();
-       /*  this.gameoverImage.visible = true;
-        this.scene.pause();
-        // cuando perdamos tambien haremos desaparecer los bloques
-        this.bricks.setVisible(false); */
+        // liveLost() metodo de la instancia LiveCounter que retornara un booleano, true si el usuario no tiene vidas, false si aun le quedan vidas
+        let gameNotFinished = this.liveCounter.liveLost()
+
+        // preguntamos si aun le quedan vidas al usuario
+        if (!gameNotFinished) {
+          this.setInitialPlatformState();
+        }
+        
       }
 
       // aqui corroboramos si el usuario ha pulsado la flecha de arriba
       if (this.cursors.up.isDown) {
         // corroboramos tambien si la bola tiene la propiedad glue
           if (this.ball.getData('glue')) {
+            // activando sonido al disparar la bola por primera vez
+            this.startGameSample.play()
+
             // si es asi quiere decir que la bola aun no se ha desprendido de la plataforma y entonces la mandaremos para arriba un poco a la izquierda
             this.ball.setVelocity(-60, -300);
             // luego seteamos la propiedad glue en false para que ya no tenga efecto otra vez al presionar hacia arriba
@@ -202,10 +229,11 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
     }
   
 
-
     // metodo que se ejecutara cada que halla una colision
     // basicamente lo que hacemos es calcular donde esta la posicion de la bola y la plataforma si al hacer la diferencia de sus posiciones me da positivo quiere decir que la bola ha impactado a la derecha de la plataforma, si sale negativo quiere decir que la bola impacto a la izquierda, si da cero quiere decir que impacto en el medio 
     platformImpact(ball, platform) {
+      // activando el sonido
+      this.platformImpactSample.play()
       console.log(ball);
       console.log(platform);
       // cuando el juego choque a la plataforma llamamos al metod que se encarga de incrementar el score y le pasamos 1
@@ -231,12 +259,16 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
 
     // metodo que se encargara de borrar los bloques
     brickImpact(ball, brick) {
+      // activando el audio cuando se colisione con un bloque
+      this.brickImpactSample.play()
       brick.disableBody(true, true);
       // cuando rompamos un bloque tambien aumentaremos el score en 10 con el metodo increasePoints 
       this.increasePoints(10);
       // cuando ya no hallan mas bloques por romper
       if (this.bricks.countActive() === 0) {
         this.endGame(true);
+        // activando sonido cuando se gane
+        this.winSample.play();
         // mostraremos una imagen de felicitaciones
         /* this.congratsImage.visible = true;
         this.scene.pause(); */
@@ -252,8 +284,8 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
 
 
     endGame(completed = false) {
-      this.scene.pause();
       if(! completed) {
+        this.gameOverSample.play();
         // la escena se inicia con el método start() indicando el indentificador de la escena que quieres iniciar.
         this.scene.start('gameover');
       } else {
@@ -261,6 +293,21 @@ El constructor hace una llamada al constructor de la clase padre, pasando el nom
       }
     }
    
+
+    // metodo de estado inicial, estamos reseteando todo, las posiciones de la plataforma y la bola
+    setInitialPlatformState() {
+          this.liveLostSample.play();
+          this.platform.x = 400;
+          this.platform.y = 460;
+          this.ball.setVelocity(0,0);
+          this.ball.x = 385;
+          this.ball.y = 430;
+          this.ball.setData('glue', true);
+    }
+
+
+
+
 
 }
 

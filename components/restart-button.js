@@ -9,13 +9,15 @@ export class RestartButton {
   
     // otros métodos de la clase
     preload() {
-        /* usamos this.relatedScene para precargar algo en la escena, ya que la propiedad "relatedScene" es donde había guardado la escena relacionada con esta instancia del componente. 
-        */
+        /* usamos this.relatedScene para precargar algo en la escena, ya que la propiedad 
+          "relatedScene" es donde había guardado la escena relacionada con esta instancia del componente. 
+        
         // creando un sprite los sprites son distintos fotogramas de una imagen
         // el método load.spritesheet() que recibe varios parámetros:
         // El identificado que vamos a darle a este sprite.
         // La imagen donde se encuentran las distintas imágenes, que simplemente tendrá una secuencia de las distintas alternativas de vistas del botón.
         // Las dimensiones del sprite (cada imagen suelta)
+        */
         this.relatedScene.load.spritesheet('button', 'images/restart.png', { frameWidth: 190, frameHeight: 49 });
     }
 
@@ -34,7 +36,7 @@ export class RestartButton {
             this.startButton.setFrame(0);
         });
 
-          this.startButton.on('pointerdown', () => {
+        this.startButton.on('pointerdown', () => {
             // se encargará de cambiar la escena, para volver a reiniciar el juego.
             this.relatedScene.scene.start('game');
         });
