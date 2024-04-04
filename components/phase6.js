@@ -28,6 +28,4 @@ export class Phase6 extends Phase {
     this.configureColisions();
 
   }
-
-  
 }

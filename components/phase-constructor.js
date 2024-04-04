@@ -6,7 +6,6 @@ import { Phase5 } from './phase5.js'
 import { Phase6 } from './phase6.js'
 
 export class PhaseConstructor {
-
   constructor(scene) {
     this.relatedScene = scene;
     this.phases = [
@@ -37,7 +36,4 @@ export class PhaseConstructor {
   isPhaseFinished() {
     return this.currentPhase.isPhaseFinished();
   }
-
-  
 }
-

@@ -1,9 +1,7 @@
 import { Phase } from './phase.js'
 
 export class Phase1 extends Phase {
-
   create() {
-
     this.bricks = this.relatedScene.physics.add.staticGroup({
       key: ['bluebrick', 'orangebrick', 'greenbrick', 'blackbrick', 'yellowbrick', 'blackbrick', 'yellowbrick', 'bluebrick', 'orangebrick', 'greenbrick'],
       frameQuantity: 1,
@@ -15,7 +13,6 @@ export class Phase1 extends Phase {
         x: 135,
         y: 150
       }
-    
     });
 
     this.fixedBricks = this.relatedScene.physics.add.staticGroup();
@@ -25,10 +22,7 @@ export class Phase1 extends Phase {
     this.configureColisions();
     this.configureColisionsFixed();
   }
-
-  
 }
-
 
 
 
